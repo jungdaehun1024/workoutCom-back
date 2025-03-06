@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.workout.workoutcom.dao.board.BoardMapper">
+
+    <!--게시글 생성-->
+    <insert id="insertBoard" parameterType="com.workout.workoutcom.dto.Board">
+    INSERT INTO board (title,content)
+    VALUES (#{title},#{content})
+    </insert>
+
+    <!--게시글 목록 -->
+    <select id="getBoards" resultType="com.workout.workoutcom.dto.Board">
+    SELECT title,content,boardId FROM board ORDER BY boardId DESC
+    </select>
+
+    <select id="getBoardDetail" resultType="com.workout.workoutcom.dto.Board" parameterType="int">
+        SELECT title,content,boardId FROM board
+        WHERE board.boardId = #{boardId}
+    </select>
+</mapper>
