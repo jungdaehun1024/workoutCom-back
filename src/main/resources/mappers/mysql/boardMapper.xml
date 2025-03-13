@@ -3,18 +3,35 @@
 <mapper namespace="com.workout.workoutcom.dao.board.BoardMapper">
 
     <!--게시글 생성-->
-    <insert id="insertBoard" parameterType="com.workout.workoutcom.dto.Board">
-    INSERT INTO board (title,content)
-    VALUES (#{title},#{content})
+    <insert id="insertBoard" parameterType="com.workout.workoutcom.dto.board.CreateBoardDto">
+    INSERT INTO board (title,content,createdAt,updatedAt)
+    VALUES (#{title},#{content},now(),now())
     </insert>
 
     <!--게시글 목록 -->
-    <select id="getBoards" resultType="com.workout.workoutcom.dto.Board">
-    SELECT title,content,boardId FROM board ORDER BY boardId DESC
+    <select id="getBoards" resultType="com.workout.workoutcom.dto.board.BoardDto">
+    SELECT title,content,boardId,createdAt,updatedAt FROM board WHERE deleteYn = 'n' ORDER BY boardId DESC
     </select>
 
-    <select id="getBoardDetail" resultType="com.workout.workoutcom.dto.Board" parameterType="int">
-        SELECT title,content,boardId FROM board
-        WHERE board.boardId = #{boardId}
+    <!-- 게시글 상세-->
+    <select id="getBoardDetail" resultType="com.workout.workoutcom.dto.board.BoardDto" parameterType="int">
+        SELECT title,content,boardId,createdAt,updatedAt FROM board
+        WHERE board.boardId = #{boardId} AND deleteYn = 'n'
     </select>
+
+    <!-- 게시글 수정 -->
+    <update id="updateBoard" parameterType="com.workout.workoutcom.dto.board.BoardDto">
+        UPDATE board
+        SET board.title = #{title}, board.content = #{content}, board.updatedAt = now()
+        WHERE board.boardId = #{boardId} AND deleteYn = 'n'
+    </update>
+
+    <!-- 게시글 삭제 (Y,N)-->
+    <update id="deleteBoard" parameterType="int">
+        UPDATE board
+        SET board.title = #{title}, board.content = #{content},board.deleteYn = 'y',board.updatedAt = now()
+        WHERE board.boardId = #{boardId}
+    </update>
+
+
 </mapper>
