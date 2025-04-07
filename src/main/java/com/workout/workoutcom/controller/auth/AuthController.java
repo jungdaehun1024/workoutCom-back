@@ -1,13 +1,17 @@
 package com.workout.workoutcom.controller.auth;
 
 import com.workout.workoutcom.dto.ApiResponseDto;
-import com.workout.workoutcom.dto.auth.CreateUserDto;
+import com.workout.workoutcom.dto.auth.UserDto;
 import com.workout.workoutcom.dto.auth.PublicKeyResponseDto;
 import com.workout.workoutcom.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,23 +29,6 @@ public class AuthController {
           this.authService = authService;
       }
 
-//    @PostMapping("/signUp")
-//    @Operation(summary = "회원가입", description = "회원가입 API")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "201" , description = "회원가입에 성공했습니다.",content = @Content(mediaType = "application/json",
-//            schema = @Schema(implementation = ApiResponseDto.class),
-//            examples = @ExampleObject(value="{\"status\": 201 , \"message\" : \" 회원가입에 성공했습니다.\"}"))),
-//
-//            @ApiResponse(responseCode = "500", description = "회원 가입 중 서버에러 발생",content = @Content(mediaType = "application/json",
-//            schema = @Schema(implementation = ApiResponseDto.class),
-//            examples = @ExampleObject(value="{\"status\": 500 , \"message\" : \"서버에서 예기치 못한 오류가 발생했습니다. \"}")
-//            ))
-//    })
-//    public ResponseEntity<ApiResponseDto> signUp(@RequestBody CreateUserDto user) {
-//        userService.signUp(user);
-//        ApiResponseDto response = new ApiResponseDto(HttpStatus.CREATED.value(),"회원가입이 완료되었습니다.",null);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-//    }
 
     //회원가입 , 로그인 폼 진입시 해당 API로 세션에 개인키,공개키 등록
     @GetMapping("/getPublicKeyModule")
@@ -54,8 +41,42 @@ public class AuthController {
 
     //회원가입
     @PostMapping("/auth/registerUser")
-    public void signUp (@RequestBody CreateUserDto user,HttpServletRequest request) throws Exception {
+    public ResponseEntity<ApiResponseDto> signUp (@RequestBody UserDto user, HttpServletRequest request) throws Exception {
           authService.registerUser(user,request.getSession());
+          ApiResponseDto response = new ApiResponseDto(HttpStatus.CREATED.value(), "회원가입이 완료되었습니다.",null);
+          return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    //로그인
+    @PostMapping("/auth/login")
+    public ResponseEntity<ApiResponseDto> login (@RequestBody UserDto user, HttpServletResponse res) throws Exception {
+          authService.loginUser(res,user);
+        ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(),"로그인이 완료되었습니다.",null);
+        return ResponseEntity.ok(response);
+
+    }
+
+    //로그아웃
+    @PostMapping("/auth/logout")
+    public ResponseEntity<ApiResponseDto> logout(HttpServletResponse res) throws Exception {
+        authService.logout(res);
+        ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(),"로그아웃이 완료되었습니다.",null);
+        return ResponseEntity.ok(response);
+    }
+
+
+
+
+    //로그인 여부 체크
+    @GetMapping("/auth/loginCkeck")
+    public ResponseEntity<ApiResponseDto> loginCheck(HttpServletRequest request) throws Exception {
+        Cookie[] cookies = request.getCookies();
+        boolean result =  authService.loginCheck(cookies);
+        ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(),"로그인 체크 완료되었습니다.",result);
+        return ResponseEntity.ok(response);
+    }
+
+
+
 
 }

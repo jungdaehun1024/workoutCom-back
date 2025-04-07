@@ -3,8 +3,15 @@
 <mapper namespace="com.workout.workoutcom.dao.user.UserMapper">
 
     <!-- 회원가입 -->
-    <insert id="registerUser" parameterType="com.workout.workoutcom.dto.auth.CreateUserDto">
+    <insert id="registerUser" parameterType="com.workout.workoutcom.dto.auth.UserDto">
         INSERT INTO users (userAccount,userPw,userName,userEmail,userPh,userCreatedAt,userUpdatedAt)
-        VALUES (#{account},#{encryptPwd},#{name},#{email},#{ph},now(),now())
+        VALUES (#{account},#{password},#{name},#{email},#{ph},now(),now())
     </insert>
+
+
+    <select id="getUserInfoByAccount" parameterType="String" resultType="com.workout.workoutcom.dto.auth.UserDto">
+        SELECT userAccount,userPw,userName,userEmail,userPh,userCreatedAt,userUpdatedAt
+        FROM users
+        WHERE userAccount = #{account}
+    </select>
 </mapper>
