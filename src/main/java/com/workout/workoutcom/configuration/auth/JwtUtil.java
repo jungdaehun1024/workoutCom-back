@@ -1,7 +1,10 @@
 package com.workout.workoutcom.configuration.auth;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +30,30 @@ public class JwtUtil {
         }
 
     }
+
+    //요청 헤더에서 jwt토큰 가져오기
+    public static String extractTokenFromCookie(HttpServletRequest request) {
+        if(request.getCookies() == null){
+            return null;
+        }
+        for(Cookie cookie : request.getCookies()) {
+            if ("jwt".equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
+
+    //토큰 만료시간
+    public long getExpirationTime(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(keyPair.getPublic())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getExpiration().getTime();
+    }
+
 
     //토큰 생성(ES256알고리즘 사용)
     public String generateToken(String username) {
