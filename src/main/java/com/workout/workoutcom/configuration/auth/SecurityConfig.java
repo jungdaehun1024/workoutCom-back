@@ -11,15 +11,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 @Configuration
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtBlacklistFilter jwtBlacklistFilter;
 
     @Autowired
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,JwtBlacklistFilter jwtBlacklistFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.jwtBlacklistFilter = jwtBlacklistFilter;
     }
 
     @Bean
@@ -31,9 +32,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf-> csrf.disable())
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth->auth.requestMatchers("/getPublicKeyModule","/auth/registerUser","/auth/login","/auth/loginCkeck","/auth/logout").permitAll()
+                .authorizeHttpRequests(auth->auth.requestMatchers("/set","/getPublicKeyModule","/auth/registerUser","/auth/login","/auth/loginCkeck","/auth/logout").permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // 토큰 인증 필터
+                .addFilterBefore(jwtBlacklistFilter, JwtAuthenticationFilter.class);
         return http.build();
     }
 

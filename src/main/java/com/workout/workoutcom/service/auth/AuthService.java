@@ -11,10 +11,12 @@ import com.workout.workoutcom.dao.user.UserMapper;
 import com.workout.workoutcom.dto.auth.UserDto;
 import com.workout.workoutcom.dto.auth.PublicKeyResponseDto;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,6 +25,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.security.PrivateKey;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class AuthService {
@@ -34,12 +37,13 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final PrincipalDetailService principalDetailService;
     private final AuthenticationManager authenticationManager;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Value("${RSASETTING}")
     private String resSetting;
 
     @Autowired
-    public AuthService(RsaArrBean rsaArrBean ,RSARandBean rsaRandBean,RSADecryptBean rsaDecryptBean,PasswordEncoder passwordEncoder,UserMapper userMapper,JwtUtil jwtUtil,PrincipalDetailService principalDetailService,AuthenticationManager authenticationManager){
+    public AuthService(RsaArrBean rsaArrBean ,RSARandBean rsaRandBean,RSADecryptBean rsaDecryptBean,PasswordEncoder passwordEncoder,UserMapper userMapper,JwtUtil jwtUtil,PrincipalDetailService principalDetailService,AuthenticationManager authenticationManager,RedisTemplate<String,Object> redisTemplate){
         this.rsaArrBean = rsaArrBean;
         this.rsaRandBean = rsaRandBean;
         this.rsaDecryptBean = rsaDecryptBean;
@@ -48,6 +52,7 @@ public class AuthService {
         this.jwtUtil = jwtUtil;
         this.principalDetailService = principalDetailService;
         this.authenticationManager = authenticationManager;
+        this.redisTemplate = redisTemplate;
 
     }
 
@@ -98,20 +103,12 @@ public class AuthService {
                 .maxAge(60*60)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE,cookie.toString());
-
- //JWT를 HttpOnly 쿠키로 설정
-//        Cookie cookie = new Cookie("jwt",jwtToken);
-//        cookie.setHttpOnly(true);
-//        cookie.setMaxAge(60*60); // 쿠키 만료시간 1 시간
-//        cookie.setPath("/"); // 모든 경로에서 쿠키 전송 가능
-//        cookie.setSecure(false); // HTTPS 적용 시 true로 변경
-//        return cookie;
-//        response.addCookie(cookie);  // 이렇게 해줘야 set-cookie필드에 쿠키 등록
-
     }
 
     //로그인 여부 체크
-    public boolean loginCheck(Cookie[] cookies){
+    public boolean loginCheck(HttpServletRequest request){
+        if(request.getCookies() == null) return false;
+        Cookie[] cookies = request.getCookies();
         if(cookies != null) {
             for(Cookie cookie : cookies) {
                 if(cookie.getName().equals("jwt")) {
@@ -125,9 +122,18 @@ public class AuthService {
         return false;
     }
 
-    //로그아웃(Http-only 쿠키 강제 만료 --> jwt도 블랙리스트 등록 예정)
-    public void logout(HttpServletResponse response){
-
+    //로그아웃
+    public void logout(HttpServletResponse response, HttpServletRequest request){
+        String token = JwtUtil.extractTokenFromCookie(request); //HttpOnly쿠키에서 JWT추출
+        if(token == null) {
+            return;
+        }
+        long expiration = jwtUtil.getExpirationTime(token); // 만료시간(밀리초)
+        long ttl = expiration - System.currentTimeMillis(); // 현재를 기준으로 남은 유효 시간 계산
+        if(ttl > 0) { //만료 시간이 있으면 Redis에 토큰 저장
+            redisTemplate.opsForValue()
+                    .set("blacklist:"+token,"true",ttl, TimeUnit.MILLISECONDS); // "blacklist:토큰 (key) , true(value) , ttl(유효기간),MILLISECONDS 단위로 저장
+        }
         ResponseCookie expiredCookie = ResponseCookie.from("jwt","")
                 .httpOnly(true)
                 .secure(false)

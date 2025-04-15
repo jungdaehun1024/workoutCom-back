@@ -5,13 +5,10 @@ import com.workout.workoutcom.dto.auth.UserDto;
 import com.workout.workoutcom.dto.auth.PublicKeyResponseDto;
 import com.workout.workoutcom.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,8 +55,8 @@ public class AuthController {
 
     //로그아웃
     @PostMapping("/auth/logout")
-    public ResponseEntity<ApiResponseDto> logout(HttpServletResponse res) throws Exception {
-        authService.logout(res);
+    public ResponseEntity<ApiResponseDto> logout(HttpServletResponse res,HttpServletRequest request) throws Exception {
+        authService.logout(res,request);
         ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(),"로그아웃이 완료되었습니다.",null);
         return ResponseEntity.ok(response);
     }
@@ -70,8 +67,7 @@ public class AuthController {
     //로그인 여부 체크
     @GetMapping("/auth/loginCkeck")
     public ResponseEntity<ApiResponseDto> loginCheck(HttpServletRequest request) throws Exception {
-        Cookie[] cookies = request.getCookies();
-        boolean result =  authService.loginCheck(cookies);
+        boolean result =  authService.loginCheck(request);
         ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(),"로그인 체크 완료되었습니다.",result);
         return ResponseEntity.ok(response);
     }
