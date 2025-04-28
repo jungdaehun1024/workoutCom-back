@@ -25,6 +25,12 @@ spring:
           min-idle: 2 #최소 유지 커넥션 수
       database: 0
 
+  servlet:
+    multipart:
+      enabled: true #multipart 요청 활성화
+      max-file-size: 10MB #단일 파일 최대 크기
+      max-request-size: 20MB #전체 요청 최대 크기
+
 mybatis:
   mapper-locations: classpath:mappers/mysql/**/*.xml
 
@@ -41,3 +47,6 @@ jwt:
   EXPIRATIONTIME: 3600000  # 1시간 (밀리초)
 
 RSASETTING: Y
+
+#게시글 생성 시 첨부파일 저장 위치
+BOARD_ATTACH_PATH: C:/uploads/board/
