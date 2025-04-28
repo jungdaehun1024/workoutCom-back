@@ -33,13 +33,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             chain.doFilter(request, response);
             return;
         }
-        String token =JwtUtil.extractTokenFromCookie(request);
+        String token =jwtUtil.extractTokenFromCookie(request);
         if (token != null && jwtUtil.validateToken(token)) {
             String username = jwtUtil.getUsername(token);
             UserDetails userDetails = principalDetailService.loadUserByUsername(username);
 
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        }else{
+            response.setContentType("text/plain; charset=UTF-8");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("해당 토큰은 신뢰할 수 없습니다.");
+            return;
         }
         chain.doFilter(request, response);
     }

@@ -15,9 +15,11 @@ import java.util.List;
 public class JwtBlacklistFilter extends OncePerRequestFilter {
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private final JwtUtil jwtUtil;
 
-    public JwtBlacklistFilter(RedisTemplate<String,Object> redisTemplate) {
+    public JwtBlacklistFilter(RedisTemplate<String,Object> redisTemplate,JwtUtil jwtUtil) {
         this.redisTemplate = redisTemplate;
+        this.jwtUtil = jwtUtil;
 
     }
 
@@ -41,11 +43,12 @@ public class JwtBlacklistFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = JwtUtil.extractTokenFromCookie(request);
+        String token = jwtUtil.extractTokenFromCookie(request);
          //토큰은 있지만 블랙리스트에 올라간 경우(로그아웃 된 경우)
          if(token != null && isBlacklisted(token)){
+             response.setContentType("text/plain; charset=UTF-8");
              response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-             response.getWriter().write("해당 토큰은 블랙리스트에 차단되었습니다.");
+             response.getWriter().write("해당 토큰은 차단된 토큰입니다..");
              return;
          }
 

@@ -1,6 +1,7 @@
 package com.workout.workoutcom.configuration.auth;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.Cookie;
@@ -32,12 +33,12 @@ public class JwtUtil {
     }
 
     //요청 헤더에서 jwt토큰 가져오기
-    public static String extractTokenFromCookie(HttpServletRequest request) {
+    public String extractTokenFromCookie(HttpServletRequest request) {
         if(request.getCookies() == null){
             return null;
         }
         for(Cookie cookie : request.getCookies()) {
-            if ("jwt".equals(cookie.getName())) {
+            if ("jwt".equals(cookie.getName())) { // 쿠키 이름이 jwt이면 그 쿠키의 값을 반환
                 return cookie.getValue();
             }
         }
@@ -67,11 +68,15 @@ public class JwtUtil {
 
     //토큰 검증
     public boolean validateToken(String token){
-        Jwts.parserBuilder() //JWT파서를 생성하는 빌더 객체
-                .setSigningKey(keyPair.getPublic()) // 서명을 검증할 때 사용할 키 지정
-                .build() //실제 파서를 생성
-                .parseClaimsJws(token); //토큰 파싱 및 검증
-        return true;
+        try{
+            Jwts.parserBuilder() //JWT파서를 생성하는 빌더 객체
+                    .setSigningKey(keyPair.getPublic()) // 서명을 검증할 때 사용할 키 지정
+                    .build() //실제 파서를 생성
+                    .parseClaimsJws(token); //토큰 파싱 및 검증
+            return true;
+        }catch(JwtException | IllegalArgumentException e){
+            return false;
+        }
     }
 
     //토큰에서 사용자명 추출
