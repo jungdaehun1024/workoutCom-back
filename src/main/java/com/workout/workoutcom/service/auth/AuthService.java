@@ -124,7 +124,7 @@ public class AuthService {
 
     //로그아웃
     public void logout(HttpServletResponse response, HttpServletRequest request){
-        String token = JwtUtil.extractTokenFromCookie(request); //HttpOnly쿠키에서 JWT추출
+        String token = jwtUtil.extractTokenFromCookie(request); //HttpOnly쿠키에서 JWT추출
         if(token == null) {
             return;
         }

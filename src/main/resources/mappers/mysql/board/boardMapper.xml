@@ -3,10 +3,24 @@
 <mapper namespace="com.workout.workoutcom.dao.board.BoardMapper">
 
     <!--게시글 생성-->
-    <insert id="insertBoard" parameterType="com.workout.workoutcom.dto.board.CreateBoardDto">
-    INSERT INTO board (title,content,createdAt,updatedAt)
-    VALUES (#{title},#{content},now(),now())
+
+    <!-- 첨부파일을 제외한 게시글 내용 저장 -->
+    <insert id="insertBoard" parameterType="com.workout.workoutcom.dto.board.BoardDto" useGeneratedKeys="true" keyProperty="boardId">
+    INSERT INTO board (title,content,deleteYn,createdAt,updatedAt,writerAccount)
+    VALUES (#{title},#{content},"n",now(),now(),#{writerAccount})
     </insert>
+
+    <!--게시글 첨부파일-->
+    <insert id="insertBoardAttach" parameterType="java.util.List">
+        INSERT INTO attachment(boardId,attachmentName,attachmentPath,attachmentMIME)
+        VALUES
+        <foreach collection="list" item="item"  separator=",">
+            (#{item.boardId},#{item.attachmentName},#{item.attachmentPath},#{item.attachmentMIME})
+        </foreach>
+
+    </insert>
+    <!-- 게시글 생성 END -->
+
 
     <!--게시글 목록 -->
     <select id="getBoards" resultType="com.workout.workoutcom.dto.board.BoardDto">
@@ -14,10 +28,33 @@
     </select>
 
     <!-- 게시글 상세-->
-    <select id="getBoardDetail" resultType="com.workout.workoutcom.dto.board.BoardDto" parameterType="int">
-        SELECT title,content,boardId,createdAt,updatedAt FROM board
-        WHERE board.boardId = #{boardId} AND deleteYn = 'n'
+
+    <resultMap id="boardWithAttachResultMap" type="com.workout.workoutcom.dto.board.BoardDto">
+        <!-- 게시글 필드 매핑-->
+        <id property="boardId" column="boardId"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="createdAt" column="createdAt"/>
+        <result property="writerAccount" column="writerAccount"/>
+        <collection property="attachments" ofType="com.workout.workoutcom.dto.board.Attachment">
+            <result property="attachmentId" column="attachmentId"/>
+            <result property="attachmentName" column="attachmentName"/>
+            <result property="attachmentPath" column="attachmentPath"/>
+            <result property="attachmentMIME" column="attachmentMIME"/>
+        </collection>
+    </resultMap>
+
+    <select id="getBoardDetail" resultMap="boardWithAttachResultMap" parameterType="int">
+        SELECT b.boardId,b.title,b.content,b.createdAt,b.writerAccount, a.attachmentId,a.attachmentMIME,a.attachmentName,a.attachmentPath
+        FROM board b
+        LEFT JOIN attachment a ON b.boardId = a.boardId
+        WHERE b.boardId = #{boardId}
+        AND b.deleteYn = 'n';
     </select>
+
+    <!-- 게시글 상세 END -->
+
+
 
     <!-- 게시글 수정 -->
     <update id="updateBoard" parameterType="com.workout.workoutcom.dto.board.BoardDto">
