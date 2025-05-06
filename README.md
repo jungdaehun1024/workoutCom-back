@@ -53,7 +53,8 @@
     - `src/main/resources/application.yml` 파일 참고
 
 4. Redis 설치
-    - [Redis 설치 가이드 보기](https://ittrue.tistory.com/318#google_vignette)
+    - [Redis 설치 가이드 보기(Window)](https://ittrue.tistory.com/318#google_vignette)
+    - [Redis 설치 가이드 보기(Linux)](http://chanhan.tistory.com/entry/Linux-Ubuntu%EC%97%90-Redis-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0)
 
 5. 실행
 
@@ -74,19 +75,29 @@
 - **Spring Security**: `org.springframework.boot:spring-boot-starter-security:3.3.1`
 - **MyBatis**: `org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4`
 - **Lombok**: `org.projectlombok:lombok:1.18.32`
-- **JWT**:
-    - `io.jsonwebtoken:jjwt-api:0.11.5`
-    - `io.jsonwebtoken:jjwt-impl:0.11.5`
-    - `io.jsonwebtoken:jjwt-jackson:0.11.5`
+- **JWT**: `io.jsonwebtoken:jjwt-api:0.11.5`
 - **Redis**: `org.springframework.boot:spring-boot-starter-data-redis:3.3.1`
-- **MySQL**: 5.7.29
+- **MySQL**: `5.7.29`
 
 ---
 
 ### 기술스택
 
-- **Backend**: Spring Boot, MyBatis, Swagger
-- **DB**: MySQL, Redis (캐시 및 블랙리스트 저장용 In-memory DB)
+- **Backend**  
+  - **프레임워크**  
+    - Spring Boot  
+  - **데이터 접근 계층**  
+    - MyBatis
+  - **보안/인증**
+    - Spring Security
+    - JWT
+    - RSA
+  - **데이터베이스**
+    - MySQL
+  - **세션/캐시**
+    - Redis(In-memory DB)
+- **API 문서화**
+  - Swagger (API 명세 자동화)
 
 ---
 
