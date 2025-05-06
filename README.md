@@ -83,7 +83,7 @@
 
 ### 기술스택
 
-- **Backend**  
+#### **Backend**  
   - **프레임워크**  
     - Spring Boot  
   - **데이터 접근 계층**  
@@ -96,7 +96,7 @@
     - MySQL
   - **세션/캐시**
     - Redis(In-memory DB)
-- **API 문서화**
+#### **API 문서화**
   - Swagger (API 명세 자동화)
 
 ---
