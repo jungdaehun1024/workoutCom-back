@@ -1,20 +1,18 @@
 package com.workout.workoutcom.controller.board;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.workout.workoutcom.configuration.auth.PrincipalDetails;
+import com.workout.workoutcom.dto.board.Attachment;
 import com.workout.workoutcom.dto.board.BoardDto;
-import com.workout.workoutcom.dto.board.CreateBoardDto;
+
 import com.workout.workoutcom.dto.ApiResponseDto;
 import com.workout.workoutcom.service.attachment.AttachService;
 import com.workout.workoutcom.service.board.BoardService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -44,6 +42,7 @@ public class boardController {
         this.attachService = attachService;
     }
 
+    //글생성
     @PostMapping("/createBoard")
     public ResponseEntity<ApiResponseDto> createBoard(@ModelAttribute BoardDto boardDto, @AuthenticationPrincipal PrincipalDetails principalDetails){
         boardDto.setWriterAccount(principalDetails.getUsername());
@@ -52,14 +51,16 @@ public class boardController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    //글 목록
     @GetMapping("/getBoards")
-    public ResponseEntity<ApiResponseDto<List<BoardDto>>> getBoards(){
+    public ResponseEntity<ApiResponseDto<List<BoardDto>>> getBoards() throws Exception {
         List<BoardDto> boards = boardService.getBoards();
         ApiResponseDto<List<BoardDto>> response = new ApiResponseDto<>(HttpStatus.OK.value(), "게시글 목록 로딩에 성공했습니다.",boards);
         return ResponseEntity.ok(response);
     }
 
 
+    //글 상세
     @GetMapping("/getBoardDetail/{boardId}")
     public ResponseEntity<ApiResponseDto<BoardDto>> getBoardDetail(@PathVariable int boardId){
         BoardDto board = boardService.getBoardDetail(boardId);
@@ -84,13 +85,23 @@ public class boardController {
     }
 
 
+    //글 수정
     @PutMapping("/updateBoard")
-    public ResponseEntity<ApiResponseDto> updateBoard(@RequestBody BoardDto board){
-        boardService.updateBoard(board);
+    public ResponseEntity<ApiResponseDto> updateBoard(@ModelAttribute BoardDto board ,@RequestPart("deleteAttachmentsList") String deleteAttachmentsListStr) throws JsonProcessingException {
+
+        //JSON문자열 -> List<Attachments>파싱
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Attachment> deleteAttachments = objectMapper.readValue(
+                deleteAttachmentsListStr, new TypeReference<List<Attachment>>(){}
+        );
+
+
+        boardService.updateBoard(board,deleteAttachments);
         ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(), "게시글 수정이 완료되었습니다.",null);
         return ResponseEntity.ok(response);
     }
 
+    //글 삭제
     @PutMapping("/deleteBoard/{boardId}")
     public ResponseEntity<ApiResponseDto> deleteBoard(@PathVariable int boardId){
         boardService.deleteBoard(boardId);

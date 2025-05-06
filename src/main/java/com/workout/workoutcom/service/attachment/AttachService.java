@@ -1,6 +1,7 @@
 package com.workout.workoutcom.service.attachment;
 
 import com.workout.workoutcom.dto.board.Attachment;
+import com.workout.workoutcom.dto.board.BoardDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -78,4 +80,42 @@ public class AttachService {
             throw new FileNotFoundException("파일을 찾을 수 없습니다.");
         }
     }
+
+    //로컬 디스크에 저장된 파일 삭제
+    public void deleteFile(List<Attachment> attachmentPaths ){
+
+        for(Attachment path : attachmentPaths){
+            File file = new File(path.getAttachmentPath());
+            //파일 삭제
+            if(file.exists()){
+                file.delete();
+            }
+
+            File parentDir = file.getParentFile();
+            if(parentDir.exists()&&parentDir.isDirectory()&&parentDir.listFiles().length == 0){
+                parentDir.delete();
+            }
+        }
+    }
+
+
+    //로컬 디스크에 저장된 파일 삭제
+    public void deleteFile(int boardId){
+        String path = baseFilePath +boardId+"/";
+        File dir = new File(path);
+
+        if(dir.exists() && dir.isDirectory()){
+            File[] files = dir.listFiles();
+            if(files !=null){
+                for(File file : files){
+                    if(file.exists()){
+                        file.delete();
+                    }
+                }
+            }
+        }
+        dir.delete();
+    }
+
+
 }

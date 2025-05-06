@@ -6,8 +6,8 @@
 
     <!-- 첨부파일을 제외한 게시글 내용 저장 -->
     <insert id="insertBoard" parameterType="com.workout.workoutcom.dto.board.BoardDto" useGeneratedKeys="true" keyProperty="boardId">
-    INSERT INTO board (title,content,deleteYn,createdAt,updatedAt,writerAccount)
-    VALUES (#{title},#{content},"n",now(),now(),#{writerAccount})
+    INSERT INTO board (title,content,createdAt,updatedAt,writerAccount)
+    VALUES (#{title},#{content},now(),now(),#{writerAccount})
     </insert>
 
     <!--게시글 첨부파일-->
@@ -21,10 +21,21 @@
     </insert>
     <!-- 게시글 생성 END -->
 
+    <!--첨부파일 삭제 -->
+    <delete id ="deleteBoardAttach" parameterType="java.util.List">
+        DELETE FROM attachment WHERE attachmentId IN
+        <foreach collection="list" item="item" open="(" separator=","  close=")">
+          #{item.attachmentId}
+        </foreach>
+    </delete>
+
+
+
+
 
     <!--게시글 목록 -->
     <select id="getBoards" resultType="com.workout.workoutcom.dto.board.BoardDto">
-    SELECT title,content,boardId,createdAt,updatedAt FROM board WHERE deleteYn = 'n' ORDER BY boardId DESC
+    SELECT title,content,boardId,createdAt,updatedAt FROM board ORDER BY boardId DESC
     </select>
 
     <!-- 게시글 상세-->
@@ -49,7 +60,6 @@
         FROM board b
         LEFT JOIN attachment a ON b.boardId = a.boardId
         WHERE b.boardId = #{boardId}
-        AND b.deleteYn = 'n';
     </select>
 
     <!-- 게시글 상세 END -->
@@ -59,16 +69,17 @@
     <!-- 게시글 수정 -->
     <update id="updateBoard" parameterType="com.workout.workoutcom.dto.board.BoardDto">
         UPDATE board
-        SET board.title = #{title}, board.content = #{content}, board.updatedAt = now()
-        WHERE board.boardId = #{boardId} AND deleteYn = 'n'
+        SET title = #{title},content = #{content}, updatedAt = now()
+        WHERE boardId = #{boardId}
     </update>
 
-    <!-- 게시글 삭제 (Y,N)-->
-    <update id="deleteBoard" parameterType="int">
-        UPDATE board
-        SET board.title = #{title}, board.content = #{content},board.deleteYn = 'y',board.updatedAt = now()
-        WHERE board.boardId = #{boardId}
-    </update>
+    <!-- 게시글 삭제-->
+    <delete id="deleteBoard" parameterType="int">
+        DELETE FROM board
+        WHERE boardId =#{boardId}
+    </delete>
+
+
 
 
 </mapper>

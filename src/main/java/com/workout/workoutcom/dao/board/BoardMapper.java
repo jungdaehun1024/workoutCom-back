@@ -14,6 +14,8 @@ public interface BoardMapper {
     int insertBoardAttach(List<Attachment> attachment); // 게시글 첨부파일 저장
     List<BoardDto> getBoards(); // 게시글 목록 조회
     BoardDto getBoardDetail(int boardId); // 게시글 상세
+    int deleteBoardAttach (List<Attachment> attachments); // 첨부파일 삭제
     int updateBoard(BoardDto board); //
     int deleteBoard(int boardId);// 게시글 삭제
+    
 }
