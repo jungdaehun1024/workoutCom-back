@@ -1,6 +1,6 @@
 package com.workout.workoutcom.dao.user;
 
-import com.workout.workoutcom.dto.auth.UserDto;
+import com.workout.workoutcom.dto.user.UserDto;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Optional;
@@ -9,5 +9,7 @@ import java.util.Optional;
 public interface UserMapper {
     void registerUser(UserDto user);
     Optional<UserDto> getUserInfoByAccount(String account);
+//    UserDto getUserInfoByAccount
+    int updateUserPassword(UserDto user);
 
 }
