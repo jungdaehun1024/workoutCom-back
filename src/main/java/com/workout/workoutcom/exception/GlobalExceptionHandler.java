@@ -12,7 +12,7 @@ public class GlobalExceptionHandler {
     //공통 예외 처리
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponseDto> handleGeneralException(Exception exception){
-        ApiResponseDto response = new ApiResponseDto(HttpStatus.INTERNAL_SERVER_ERROR.value(),"서버에서 예기치 못한 오류가 발생했습니다.",null);
+        ApiResponseDto response = new ApiResponseDto(HttpStatus.INTERNAL_SERVER_ERROR.value(),exception.getMessage(),null);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
