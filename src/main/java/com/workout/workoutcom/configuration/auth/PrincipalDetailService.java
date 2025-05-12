@@ -1,7 +1,7 @@
 package com.workout.workoutcom.configuration.auth;
 
 import com.workout.workoutcom.dao.user.UserMapper;
-import com.workout.workoutcom.dto.auth.UserDto;
+import com.workout.workoutcom.dto.user.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

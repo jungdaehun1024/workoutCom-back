@@ -8,7 +8,7 @@ import com.workout.workoutcom.configuration.auth.JwtUtil;
 import com.workout.workoutcom.configuration.auth.PrincipalDetailService;
 import com.workout.workoutcom.configuration.auth.PrincipalDetails;
 import com.workout.workoutcom.dao.user.UserMapper;
-import com.workout.workoutcom.dto.auth.UserDto;
+import com.workout.workoutcom.dto.user.UserDto;
 import com.workout.workoutcom.dto.auth.PublicKeyResponseDto;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

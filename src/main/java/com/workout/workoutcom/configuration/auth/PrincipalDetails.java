@@ -1,6 +1,6 @@
 package com.workout.workoutcom.configuration.auth;
 
-import com.workout.workoutcom.dto.auth.UserDto;
+import com.workout.workoutcom.dto.user.UserDto;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
