@@ -50,3 +50,7 @@ RSASETTING: Y
 
 #게시글 생성 시 첨부파일 저장 위치
 BOARD_ATTACH_PATH: C:/uploads/board/
+
+#식품 안전나라 API KEY
+foodsafety:
+  service-key: QHZGpE0gQfa+p9FJIb6E7+0XijXvehW0s2nxPR9Iw0Ac8VmcqxKSKX8qTkrXK0f8AjD4Wgz034sIG+wEQWIclg==
