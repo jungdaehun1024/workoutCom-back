@@ -1,14 +1,18 @@
 package com.workout.workoutcom.controller.auth;
 
+import com.workout.workoutcom.configuration.auth.PrincipalDetails;
 import com.workout.workoutcom.dto.ApiResponseDto;
+import com.workout.workoutcom.dto.user.PasswordDto;
 import com.workout.workoutcom.dto.user.UserDto;
 import com.workout.workoutcom.dto.auth.PublicKeyResponseDto;
 import com.workout.workoutcom.service.auth.AuthService;
+import com.workout.workoutcom.service.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,10 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AuthController {
       private final AuthService authService;
+      private final UserService userService;
 
       @Autowired
-      public AuthController(AuthService authService) {
+      public AuthController(AuthService authService, UserService userService) {
           this.authService = authService;
+          this.userService = userService;
       }
 
     //회원가입 , 로그인 폼 진입시 해당 API로 세션에 개인키,공개키 등록
@@ -37,6 +43,13 @@ public class AuthController {
           authService.registerUser(user,request.getSession());
           ApiResponseDto response = new ApiResponseDto(HttpStatus.CREATED.value(), "회원가입이 완료되었습니다.",null);
           return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+    //패스워드 변경
+    @PostMapping("/changePwd")
+    public ResponseEntity<ApiResponseDto> changePwd(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody PasswordDto passwordDto) throws Exception {
+        userService.changePassword(principalDetails,passwordDto);
+        ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(), "회원 정보 변경 성공", null);
+        return ResponseEntity.ok(response);
     }
 
     //로그인
@@ -63,4 +76,5 @@ public class AuthController {
         ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(),"로그인 체크 완료되었습니다.",result);
         return ResponseEntity.ok(response);
     }
+
 }
