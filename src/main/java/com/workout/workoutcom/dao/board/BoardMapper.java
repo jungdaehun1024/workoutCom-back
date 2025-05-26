@@ -3,7 +3,6 @@ package com.workout.workoutcom.dao.board;
 
 import com.workout.workoutcom.dto.board.Attachment;
 import com.workout.workoutcom.dto.board.BoardDto;
-import com.workout.workoutcom.dto.board.CreateBoardDto;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
