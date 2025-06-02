@@ -8,6 +8,6 @@ import java.util.List;
 @Mapper
 public interface FoodSafetyMapper {
     int insertFoodRecored(FoodInfoDto foodInfoDto);
-    List<FoodInfoDto> selectWeeklyRecord(String recorderAccount);
+    List<FoodInfoDto> selectFoodRecord(String recorderAccount,String specificDate);
 
 }

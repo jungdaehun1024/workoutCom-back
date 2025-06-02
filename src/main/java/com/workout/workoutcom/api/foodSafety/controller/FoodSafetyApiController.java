@@ -42,10 +42,10 @@ public class FoodSafetyApiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    //금주 저장 식단 조회
+    //특정 날짜의 식단 조회
     @GetMapping("/getMyDiet")
-    public ResponseEntity<ApiResponseDto> getMyDietRequest(@AuthenticationPrincipal PrincipalDetails principal){
-        List<FoodInfoDto> weeklyRecords = foodSafetyService.getWeeklyRecords(principal.getUsername());
+    public ResponseEntity<ApiResponseDto> getMyDietRequest(@AuthenticationPrincipal PrincipalDetails principal, @RequestParam String specificDate){
+        List<FoodInfoDto> weeklyRecords = foodSafetyService.getWeeklyRecords(principal.getUsername(),specificDate);
         ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(),"조회 성공",weeklyRecords);
         return ResponseEntity.ok(response);
     }

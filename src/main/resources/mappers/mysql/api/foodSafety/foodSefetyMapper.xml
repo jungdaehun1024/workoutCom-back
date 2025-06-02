@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.workout.workoutcom.api.foodSafety.dao.FoodSafetyMapper">
-
     <!-- 음식 저장-->
     <insert id="insertFoodRecored" parameterType="com.workout.workoutcom.api.foodSafety.dto.FoodInfoDto">
         INSERT INTO foodrecord (foodName,recorderAccount,foodKcal,foodCarbo,foodProtein,foodFat,foodRecordedDate,dietCategory,foodWeight)
-        VALUES (#{foodName},#{recorderAccount},#{foodKcal},#{foodCarbo},#{foodProtein},#{foodFat},CURDATE(),#{dietCategory},#{foodWeight});
+        VALUES (#{foodName},#{recorderAccount},#{foodKcal},#{foodCarbo},#{foodProtein},#{foodFat},#{foodRecordedDate},#{dietCategory},#{foodWeight});
     </insert>
 
-    <select id="selectWeeklyRecord" parameterType="String" resultType="com.workout.workoutcom.api.foodSafety.dto.FoodInfoDto">
-        SELECT recorderAccount , foodKcal , foodCarbo , foodProtein, foodFat,foodRecordedDate,foodName,dietCategory,foodWeight
+    <!-- 과거 식단 조회 -->
+    <select id="selectFoodRecord" parameterType="String" resultType="com.workout.workoutcom.api.foodSafety.dto.FoodInfoDto">
+        SELECT recorderAccount,foodKcal,foodCarbo,foodProtein,foodFat,foodRecordedDate,foodName,dietCategory,foodWeight
         FROM foodrecord
         WHERE recorderAccount = #{recorderAccount}
-        AND foodRecordedDate BETWEEN
-        DATE_SUB(CURDATE(),INTERVAL WEEKDAY(CURDATE()) DAY)
-        AND
-        DATE_ADD(CURDATE(),INTERVAL 6 - WEEKDAY(CURDATE())DAY)
+        AND foodRecordedDate = #{specificDate}
     </select>
+
+
 </mapper>

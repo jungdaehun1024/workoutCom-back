@@ -23,8 +23,8 @@ public class FoodSafetyService {
         }
     }
 
-    public List<FoodInfoDto> getWeeklyRecords(String recorderAccount){
-        List<FoodInfoDto> WeeklyRecords = foodSafetyMapper.selectWeeklyRecord(recorderAccount);
+    public List<FoodInfoDto> getWeeklyRecords(String recorderAccount,String specificDate){
+        List<FoodInfoDto> WeeklyRecords = foodSafetyMapper.selectFoodRecord(recorderAccount,specificDate);
         if(WeeklyRecords == null){
             return null;
         }
