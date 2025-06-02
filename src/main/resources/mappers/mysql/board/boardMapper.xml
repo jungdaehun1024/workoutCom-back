@@ -34,8 +34,8 @@
 
 
     <!--게시글 목록 -->
-    <select id="getBoards" resultType="com.workout.workoutcom.dto.board.BoardDto">
-    SELECT title,content,boardId,createdAt,updatedAt FROM board ORDER BY boardId DESC
+    <select id="getBoards" parameterType="int" resultType="com.workout.workoutcom.dto.board.BoardDto">
+    SELECT title,content,boardId,createdAt,updatedAt FROM board ORDER BY boardId DESC LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
     <!-- 게시글 상세-->
@@ -79,7 +79,8 @@
         WHERE boardId =#{boardId}
     </delete>
 
-
-
-
+    <!-- 게시글 총 개수 -->
+    <select id = "selectBoardCount" parameterType="int" resultType="int">
+        SELECT count(*) FROM board;
+    </select>
 </mapper>

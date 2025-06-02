@@ -6,6 +6,7 @@ import com.workout.workoutcom.dto.board.BoardDto;
 
 import com.workout.workoutcom.exception.NotFoundException;
 import com.workout.workoutcom.service.attachment.AttachService;
+import com.workout.workoutcom.util.pagination.PaginationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,11 +60,12 @@ public class BoardService {
     }
 
     //게시글 목록
-    public List<BoardDto> getBoards() throws Exception {
-            List<BoardDto> boards = boardMapper.getBoards();
+    public List<BoardDto> getBoards(int paginationIndex) throws Exception {
+            PaginationUtil paginationUtil = new PaginationUtil(paginationIndex, 10);
+            int offset = paginationUtil.calculateOffset();
+            int pageSize = paginationUtil.getPageSize();
+            List<BoardDto> boards = boardMapper.getBoards(offset,pageSize);
             if(boards == null) throw new Exception("알 수 없는 이유로 게시글을 불러오지 못했습니다.");
-
-
             return boards;
     }
 
@@ -107,12 +109,16 @@ public class BoardService {
         boardMapper.updateBoard(board);
     
     }
-
-
     //게시글 삭제
     public void deleteBoard (int boardId){
         attachService.deleteFile(boardId);
         int result = boardMapper.deleteBoard(boardId); //게시글 삭제
         if(result == 0) throw new  NotFoundException("삭제하려는 게시글이 존재하지 않습니다.");
+    }
+
+    //게시글 목록 불러오기 전 게시글 전체 개수 (페이지네이션 버튼 계산)
+    public int getBoardTotalCount(){
+        int count = boardMapper.selectBoardCount();
+        return count;
     }
 }

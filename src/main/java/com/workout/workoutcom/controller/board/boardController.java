@@ -53,8 +53,8 @@ public class boardController {
 
     //글 목록
     @GetMapping("/getBoards")
-    public ResponseEntity<ApiResponseDto<List<BoardDto>>> getBoards() throws Exception {
-        List<BoardDto> boards = boardService.getBoards();
+    public ResponseEntity<ApiResponseDto<List<BoardDto>>> getBoards(@RequestParam(defaultValue = "0")int paginationIndex) throws Exception {
+        List<BoardDto> boards = boardService.getBoards(paginationIndex);
         ApiResponseDto<List<BoardDto>> response = new ApiResponseDto<>(HttpStatus.OK.value(), "게시글 목록 로딩에 성공했습니다.",boards);
         return ResponseEntity.ok(response);
     }
@@ -107,7 +107,15 @@ public class boardController {
         boardService.deleteBoard(boardId);
         ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(), "게시글 삭제가 완료되었습니다.",null);
         return ResponseEntity.ok(response);
+    }
 
+    
+    //게시글 총 개수
+    @GetMapping("/getBoardTotalCount")
+    public ResponseEntity<ApiResponseDto> getBoardCount(){
+        int boardCount = boardService.getBoardTotalCount();
+        ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(), "게시글 전체 개수 조회가 완료되었습니다.",boardCount);
+        return ResponseEntity.ok(response);
     }
 
 
