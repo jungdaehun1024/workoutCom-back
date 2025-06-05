@@ -49,4 +49,25 @@ public class FoodSafetyApiController {
         ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(),"조회 성공",weeklyRecords);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/getFoodDetail")
+    public ResponseEntity<ApiResponseDto> getFoodDetailRequest(@RequestParam int foodRecordId){
+        FoodInfoDto foodDetail = foodSafetyService.getFoodDetail(foodRecordId);
+        ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(), "저장된 음식 상세정보 조회 완료",foodDetail);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/updateFoodDetail")
+    public ResponseEntity<ApiResponseDto>  updateFoodDetailRequest(@RequestBody FoodInfoDto foodInfoDto){
+        foodSafetyService.updateFoodDetail(foodInfoDto);
+        ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(),"식사 기록이 수정 완료되었습니다.",null);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/deleteFoodDetail")
+    public ResponseEntity<ApiResponseDto> deleteFoodDetailRequest(@RequestParam int foodRecordId){
+        foodSafetyService.deleteFoodDetail(foodRecordId);
+        ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(), "식사 기록 삭제 완료되었습니다.",null);
+        return ResponseEntity.ok(response);
+    }
 }
