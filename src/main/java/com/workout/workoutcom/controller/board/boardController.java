@@ -8,6 +8,7 @@ import com.workout.workoutcom.dto.board.Attachment;
 import com.workout.workoutcom.dto.board.BoardDto;
 
 import com.workout.workoutcom.dto.ApiResponseDto;
+import com.workout.workoutcom.dto.category.BoardCategoryDto;
 import com.workout.workoutcom.service.attachment.AttachService;
 import com.workout.workoutcom.service.board.BoardService;
 
@@ -52,12 +53,13 @@ public class boardController {
     }
 
     //글 목록
-    @GetMapping("/getBoards")
-    public ResponseEntity<ApiResponseDto<List<BoardDto>>> getBoards(@RequestParam(defaultValue = "0")int paginationIndex) throws Exception {
-        List<BoardDto> boards = boardService.getBoards(paginationIndex);
-        ApiResponseDto<List<BoardDto>> response = new ApiResponseDto<>(HttpStatus.OK.value(), "게시글 목록 로딩에 성공했습니다.",boards);
+    @GetMapping("/boards")
+    public ResponseEntity<ApiResponseDto<List<BoardDto>>>getBoards(@RequestParam int categoryId,@RequestParam int depth,@RequestParam(defaultValue = "0") int paginationIndex){
+        List<BoardDto> boards = boardService.getBoardsByCategoryId(categoryId,depth,paginationIndex);
+        ApiResponseDto<List<BoardDto>> response = new ApiResponseDto<>(HttpStatus.OK.value(), "공지 게시글 목록 로딩에 성공했습니다.",boards);
         return ResponseEntity.ok(response);
     }
+
 
 
     //글 상세
@@ -116,6 +118,14 @@ public class boardController {
         int boardCount = boardService.getBoardTotalCount();
         ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(), "게시글 전체 개수 조회가 완료되었습니다.",boardCount);
         return ResponseEntity.ok(response);
+    }
+
+    //게시판 카테고리 목록 조회
+    @GetMapping("/board-categories")
+    public ResponseEntity<ApiResponseDto> getCategories(){
+       List<BoardCategoryDto> boardCategories = boardService.getBoardCategories();
+       ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(), "게시판 카테고리 조회 완료되었습니다.",boardCategories);
+       return ResponseEntity.ok(response);
     }
 
 

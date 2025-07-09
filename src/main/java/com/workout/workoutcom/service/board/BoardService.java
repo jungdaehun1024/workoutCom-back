@@ -4,9 +4,12 @@ import com.workout.workoutcom.dao.board.BoardMapper;
 import com.workout.workoutcom.dto.board.Attachment;
 import com.workout.workoutcom.dto.board.BoardDto;
 
+import com.workout.workoutcom.dto.category.BoardCategoryDto;
 import com.workout.workoutcom.exception.NotFoundException;
 import com.workout.workoutcom.service.attachment.AttachService;
 import com.workout.workoutcom.util.pagination.PaginationUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +23,7 @@ import java.util.List;
 @Service
 public class BoardService {
 
+    private static final Logger log = LoggerFactory.getLogger(BoardService.class);
     private final BoardMapper boardMapper;
     private final AttachService attachService;
 
@@ -60,14 +64,34 @@ public class BoardService {
     }
 
     //게시글 목록
-    public List<BoardDto> getBoards(int paginationIndex) throws Exception {
-            PaginationUtil paginationUtil = new PaginationUtil(paginationIndex, 10);
-            int offset = paginationUtil.calculateOffset();
-            int pageSize = paginationUtil.getPageSize();
-            List<BoardDto> boards = boardMapper.getBoards(offset,pageSize);
-            if(boards == null) throw new Exception("알 수 없는 이유로 게시글을 불러오지 못했습니다.");
-            return boards;
+    public List<BoardDto> getBoardsByCategoryId(int categoryId,int depth,int paginationIndex){
+        boolean result;
+        PaginationUtil paginationUtil = new PaginationUtil(paginationIndex,20);
+        int offset = paginationUtil.calculateOffset();
+        int pageSize = paginationUtil.getPageSize();
+
+        if(depth == 0){
+            //0뎁스 카테고리가 자식 카테고리를 가지는 카테고리인지 체크
+            result = boardMapper.hasChildCategory(categoryId);
+            if(result){
+                return boardMapper.selectBoardsHasChildCategory(categoryId,pageSize,offset);
+            }
+            return  boardMapper.selectBoardsHasNoChildCategory(categoryId,pageSize,offset);
+        }
+
+        return boardMapper.selectChildCategoryBoards(categoryId,pageSize,offset);
     }
+
+
+//게시글 목록
+//    public List<BoardDto> getBoards(int paginationIndex) throws Exception {
+//            PaginationUtil paginationUtil = new PaginationUtil(paginationIndex, 10);
+//            int offset = paginationUtil.calculateOffset();
+//            int pageSize = paginationUtil.getPageSize();
+//            List<BoardDto> boards = boardMapper.getBoards(offset,pageSize);
+//            if(boards == null) throw new Exception("알 수 없는 이유로 게시글을 불러오지 못했습니다.");
+//            return boards;
+//    }
 
     //게시글 상세
     public BoardDto getBoardDetail(int boardId){
@@ -120,5 +144,11 @@ public class BoardService {
     public int getBoardTotalCount(){
         int count = boardMapper.selectBoardCount();
         return count;
+    }
+
+    //게시글 카테고리 불러오기
+    public List<BoardCategoryDto> getBoardCategories(){
+        List<BoardCategoryDto> boardCategories = boardMapper.selectBoardCategory();
+        return boardCategories;
     }
 }

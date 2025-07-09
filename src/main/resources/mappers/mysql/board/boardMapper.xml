@@ -31,12 +31,57 @@
 
 
 
+    <!--게시글 목록-->
 
-
-    <!--게시글 목록 -->
-    <select id="getBoards" parameterType="int" resultType="com.workout.workoutcom.dto.board.BoardDto">
-    SELECT title,content,boardId,createdAt,updatedAt FROM board ORDER BY boardId DESC LIMIT #{pageSize} OFFSET #{offset}
+    <!-- 0 뎁스 카테고리 중 자식 카테고리를 가지는지 판별 -->
+    <select id="hasChildCategory" parameterType="int" resultType="boolean">
+        SELECT EXISTS(
+            SELECT *
+            FROM category
+            WHERE parentCategoryId = #{categoryId}
+        )AS has_child
     </select>
+
+    <!-- 0 뎁스 카테고리 중 자식 카테고리를 가지지 않는 경우(공지사항 & 자유게시판..)-->
+    <select id="selectBoardsHasNoChildCategory" parameterType="int" resultType="com.workout.workoutcom.dto.board.BoardDto">
+        SELECT b.boardId,b.title,b.content,b.createdAt,b.updatedAt,b.writerAccount,b.categoryId,c.categoryName,COUNT(*) OVER() as totalCount
+        FROM board b
+        INNER JOIN category c ON b.categoryId = c.categoryId
+        WHERE b.categoryId = #{categoryId}
+        ORDER BY boardId DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <!-- 0뎁스 카테고리 중 자식 카테고리를 가지는 경우(자식 카테고리의 게시글 목록을 모두 불러옴) -->
+    <select id="selectBoardsHasChildCategory" parameterType="int" resultType="com.workout.workoutcom.dto.board.BoardDto" >
+       WITH RECURSIVE cte_tree AS(
+           SELECT categoryId
+           FROM category
+           WHERE categoryId = #{categoryId}
+
+           UNION ALL
+
+           SELECT c.categoryId
+           FROM category c
+           INNER JOIN cte_tree ct ON ct.categoryId = c.parentCategoryId
+       )
+       SELECT b.boardId,b.title,b.content,b.createdAt,b.updatedAt,b.writerAccount,b.categoryId,COUNT(*) OVER() as totalCount,(SELECT categoryName FROM category WHERE categoryId = #{categoryId}) as categoryName
+       FROM board b
+       WHERE b.categoryId IN (SELECT categoryId FROM cte_tree)
+       ORDER BY boardId DESC
+       LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <!-- 1뎁스 카테고리 게시글 목록 -->
+    <select id="selectChildCategoryBoards" parameterType="int" resultType="com.workout.workoutcom.dto.board.BoardDto">
+        SELECT b.boardId,b.title,b.content,b.createdAt,b.updatedAt,b.writerAccount,c.categoryName as categoryName,COUNT(*) OVER() as totalCount
+        FROM board b
+        INNER JOIN category c  ON c.categoryId = b.categoryId
+        WHERE b.categoryId = #{categoryId}
+        ORDER BY boardId DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
 
     <!-- 게시글 상세-->
 
@@ -82,5 +127,20 @@
     <!-- 게시글 총 개수 -->
     <select id = "selectBoardCount" parameterType="int" resultType="int">
         SELECT count(*) FROM board;
+    </select>
+
+    <!-- 게시글 전체 카테고리 조회 -->
+    <select id="selectBoardCategory" resultType="com.workout.workoutcom.dto.category.BoardCategoryDto">
+        WITH RECURSIVE categoryTree AS(
+            SELECT categoryId,categoryName,parentCategoryId, 0 AS depth
+            FROM category
+            WHERE parentCategoryId IS NULL
+            UNION ALL
+
+            SELECT c.categoryId,c.categoryName,c.parentCategoryId, ct.depth+1
+            FROM category c
+            INNER JOIN categoryTree ct ON ct.categoryId = c.parentCategoryId
+        )
+        SELECT  categoryId,categoryName,parentCategoryId, depth FROM categoryTree;
     </select>
 </mapper>
