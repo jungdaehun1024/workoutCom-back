@@ -57,4 +57,5 @@ public class FoodSafetyService {
             throw new RuntimeException("식사 정보 삭제에 실패했습니다.");
         }
     }
+
 }

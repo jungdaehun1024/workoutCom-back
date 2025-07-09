@@ -42,7 +42,7 @@ public class FoodSafetyApiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    //특정 날짜의 식단 조회
+    //오늘 또는 특정 날짜 식단 조회
     @GetMapping("/getMyDiet")
     public ResponseEntity<ApiResponseDto> getMyDietRequest(@AuthenticationPrincipal PrincipalDetails principal, @RequestParam String specificDate){
         List<FoodInfoDto> weeklyRecords = foodSafetyService.getWeeklyRecords(principal.getUsername(),specificDate);
