@@ -19,6 +19,7 @@ public class BoardDto {
     private String updatedAt;
     private String writerAccount;
     private String categoryName;
+    private String categoryId;
     private int totalCount;
     private List<MultipartFile> attachmentFiles; // 첨부파일을 클라이언트로 부터 받는 필드
 

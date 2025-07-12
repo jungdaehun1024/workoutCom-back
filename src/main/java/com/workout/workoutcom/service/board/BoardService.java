@@ -63,6 +63,10 @@ public class BoardService {
         }
     }
 
+    public List<BoardCategoryDto> getBoardCreatableCategories(){
+        return boardMapper.selectCreatableCategories();
+    }
+
     //게시글 목록
     public List<BoardDto> getBoardsByCategoryId(int categoryId,int depth,int paginationIndex){
         boolean result;
@@ -83,24 +87,12 @@ public class BoardService {
     }
 
 
-//게시글 목록
-//    public List<BoardDto> getBoards(int paginationIndex) throws Exception {
-//            PaginationUtil paginationUtil = new PaginationUtil(paginationIndex, 10);
-//            int offset = paginationUtil.calculateOffset();
-//            int pageSize = paginationUtil.getPageSize();
-//            List<BoardDto> boards = boardMapper.getBoards(offset,pageSize);
-//            if(boards == null) throw new Exception("알 수 없는 이유로 게시글을 불러오지 못했습니다.");
-//            return boards;
-//    }
-
     //게시글 상세
     public BoardDto getBoardDetail(int boardId){
             BoardDto board = boardMapper.getBoardDetail(boardId);
             if(board == null) throw new NotFoundException("게시글을 찾을 수 없습니다.");
             return board;
     }
-
-
     //게시글 수정
     public void updateBoard (BoardDto board,List<Attachment> deleteAttachments){
         List<Attachment> attachList = new ArrayList<>(); // 첨부파일 리스트 (첨부파일 경로,MIME타입,파일명이 담긴 리스트)

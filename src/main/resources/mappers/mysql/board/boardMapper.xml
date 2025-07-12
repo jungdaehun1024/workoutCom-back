@@ -6,8 +6,8 @@
 
     <!-- 첨부파일을 제외한 게시글 내용 저장 -->
     <insert id="insertBoard" parameterType="com.workout.workoutcom.dto.board.BoardDto" useGeneratedKeys="true" keyProperty="boardId">
-    INSERT INTO board (title,content,createdAt,updatedAt,writerAccount)
-    VALUES (#{title},#{content},now(),now(),#{writerAccount})
+    INSERT INTO board (title,content,createdAt,updatedAt,writerAccount,categoryId)
+    VALUES (#{title},#{content},now(),now(),#{writerAccount},#{categoryId})
     </insert>
 
     <!--게시글 첨부파일-->
@@ -19,6 +19,31 @@
         </foreach>
 
     </insert>
+
+    <!-- 게시글 생성 시 선택가능한 카테고리 목록 -->
+    <select id="selectCreatableCategories" resultType="com.workout.workoutcom.dto.category.BoardCategoryDto">
+        WITH cte_tree AS(
+            SELECT c1.categoryId , c1.categoryName
+            FROM category c1
+            WHERE c1.parentCategoryId IS NULL
+            AND
+            NOT EXISTS(
+                SELECT *
+                FROM category c2
+                WHERE c1.categoryId = c2.parentCategoryId
+            )
+        )
+
+        SELECT ct.categoryId,ct.categoryName
+        FROM cte_tree ct
+
+        UNION ALL
+
+        SELECT c.categoryId,c.categoryName
+        FROM category c
+        WHERE c.parentCategoryId
+        IS NOT NULL
+    </select>
     <!-- 게시글 생성 END -->
 
     <!--첨부파일 삭제 -->
@@ -92,6 +117,8 @@
         <result property="content" column="content"/>
         <result property="createdAt" column="createdAt"/>
         <result property="writerAccount" column="writerAccount"/>
+        <result property="categoryName" column="categoryName"/>
+        <result property="categoryId" column="categoryId"/>
         <collection property="attachments" ofType="com.workout.workoutcom.dto.board.Attachment">
             <result property="attachmentId" column="attachmentId"/>
             <result property="attachmentName" column="attachmentName"/>
@@ -101,7 +128,8 @@
     </resultMap>
 
     <select id="getBoardDetail" resultMap="boardWithAttachResultMap" parameterType="int">
-        SELECT b.boardId,b.title,b.content,b.createdAt,b.writerAccount, a.attachmentId,a.attachmentMIME,a.attachmentName,a.attachmentPath
+        SELECT b.boardId,b.title,b.content,b.createdAt,b.writerAccount,b.categoryId, a.attachmentId,a.attachmentMIME,a.attachmentName,a.attachmentPath,
+               (SELECT categoryName FROM category c WHERE b.categoryId = c.categoryId) as categoryName
         FROM board b
         LEFT JOIN attachment a ON b.boardId = a.boardId
         WHERE b.boardId = #{boardId}
@@ -114,7 +142,7 @@
     <!-- 게시글 수정 -->
     <update id="updateBoard" parameterType="com.workout.workoutcom.dto.board.BoardDto">
         UPDATE board
-        SET title = #{title},content = #{content}, updatedAt = now()
+        SET title = #{title},content = #{content}, updatedAt = now() , categoryId = #{categoryId}
         WHERE boardId = #{boardId}
     </update>
 

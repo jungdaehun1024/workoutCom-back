@@ -13,7 +13,7 @@ import java.util.List;
 public interface BoardMapper {
     int insertBoard(BoardDto boardDto); //게시글 생성
     int insertBoardAttach(List<Attachment> attachment); // 게시글 첨부파일 저장
-//    List<BoardDto> getBoards(int offset,int pageSize); // 게시글 목록 조회
+    List<BoardCategoryDto>selectCreatableCategories();
 
 
     boolean hasChildCategory(int categoryId);//0뎁스 카테고리가 자식 카테고리를 가지는지 판단(T F)

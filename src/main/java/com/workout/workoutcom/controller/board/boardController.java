@@ -44,12 +44,43 @@ public class boardController {
     }
 
     //글생성
-    @PostMapping("/createBoard")
+    @PostMapping("/board")
     public ResponseEntity<ApiResponseDto> createBoard(@ModelAttribute BoardDto boardDto, @AuthenticationPrincipal PrincipalDetails principalDetails){
         boardDto.setWriterAccount(principalDetails.getUsername());
         boardService.postBoard(boardDto);
         ApiResponseDto response = new ApiResponseDto(HttpStatus.CREATED.value(),"게시글이 성공적으로 생성되었습니다.",null);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    //글 수정
+    @PutMapping("/board")
+    public ResponseEntity<ApiResponseDto> updateBoard(@ModelAttribute BoardDto board ,@RequestPart("deleteAttachmentsList") String deleteAttachmentsListStr) throws JsonProcessingException {
+
+        //JSON문자열 -> List<Attachments>파싱
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Attachment> deleteAttachments = objectMapper.readValue(
+                deleteAttachmentsListStr, new TypeReference<List<Attachment>>(){}
+        );
+
+        boardService.updateBoard(board,deleteAttachments);
+        ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(), "게시글 수정이 완료되었습니다.",null);
+        return ResponseEntity.ok(response);
+    }
+
+    //글 삭제
+    @DeleteMapping("/board")
+    public ResponseEntity<ApiResponseDto> deleteBoard(@RequestParam int boardId){
+        boardService.deleteBoard(boardId);
+        ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(), "게시글 삭제가 완료되었습니다.",null);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping("/creatable-categories")
+    public ResponseEntity<ApiResponseDto> createbleCategories(){
+        List<BoardCategoryDto> categories =boardService.getBoardCreatableCategories();
+        ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(),"게시글 생성 가능한 카테고리 목록 로딩",categories);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     //글 목록
@@ -63,8 +94,8 @@ public class boardController {
 
 
     //글 상세
-    @GetMapping("/getBoardDetail/{boardId}")
-    public ResponseEntity<ApiResponseDto<BoardDto>> getBoardDetail(@PathVariable int boardId){
+    @GetMapping("/board-detail")
+    public ResponseEntity<ApiResponseDto<BoardDto>> getBoardDetail(@RequestParam int boardId){
         BoardDto board = boardService.getBoardDetail(boardId);
         ApiResponseDto<BoardDto> response = new ApiResponseDto<BoardDto>(HttpStatus.OK.value(), "게시글 상세 정보 로딩에 성공했습니다.",board);
         return ResponseEntity.ok(response);
@@ -86,32 +117,6 @@ public class boardController {
         }
     }
 
-
-    //글 수정
-    @PutMapping("/updateBoard")
-    public ResponseEntity<ApiResponseDto> updateBoard(@ModelAttribute BoardDto board ,@RequestPart("deleteAttachmentsList") String deleteAttachmentsListStr) throws JsonProcessingException {
-
-        //JSON문자열 -> List<Attachments>파싱
-        ObjectMapper objectMapper = new ObjectMapper();
-        List<Attachment> deleteAttachments = objectMapper.readValue(
-                deleteAttachmentsListStr, new TypeReference<List<Attachment>>(){}
-        );
-
-
-        boardService.updateBoard(board,deleteAttachments);
-        ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(), "게시글 수정이 완료되었습니다.",null);
-        return ResponseEntity.ok(response);
-    }
-
-    //글 삭제
-    @PutMapping("/deleteBoard/{boardId}")
-    public ResponseEntity<ApiResponseDto> deleteBoard(@PathVariable int boardId){
-        boardService.deleteBoard(boardId);
-        ApiResponseDto response = new ApiResponseDto(HttpStatus.OK.value(), "게시글 삭제가 완료되었습니다.",null);
-        return ResponseEntity.ok(response);
-    }
-
-    
     //게시글 총 개수
     @GetMapping("/getBoardTotalCount")
     public ResponseEntity<ApiResponseDto> getBoardCount(){
