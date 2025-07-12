@@ -29,7 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String uri = request.getRequestURI();
 
         // 인증 필요 없는 URL은 필터 건너뜀
-        if (uri.startsWith("/api/auth") || uri.equals("/api/set") || uri.equals("/api/getPublicKeyModule")||uri.equals("/api/auth/loginCkeck") || uri.equals("/api/board-categories") || uri.equals("/api/boards") ) {
+        if (uri.startsWith("/api/auth") || uri.equals("/api/set") || uri.equals("/api/getPublicKeyModule")||uri.equals("/api/auth/loginCkeck") || uri.equals("/api/board-categories") || uri.equals("/api/boards") || uri.equals("/api/board-detail") ) {
             chain.doFilter(request, response);
             return;
         }

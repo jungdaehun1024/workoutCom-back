@@ -32,7 +32,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf-> csrf.disable())
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth->auth.requestMatchers("/set","/getPublicKeyModule","/auth/registerUser","/auth/login","/auth/loginCkeck","/auth/logout","/board-categories","/boards").permitAll()
+                .authorizeHttpRequests(auth->auth.requestMatchers("/set","/getPublicKeyModule","/auth/registerUser","/auth/login","/auth/loginCkeck","/auth/logout","/board-categories","/boards","/board-detail").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // 토큰 인증 필터
                 .addFilterBefore(jwtBlacklistFilter, JwtAuthenticationFilter.class);
